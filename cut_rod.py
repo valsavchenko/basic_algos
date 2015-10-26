@@ -29,17 +29,27 @@ def bottom_up(p, n):
   if n <= 0:
     return 0
 
-  r = [0 for i in range(n)]
+  r = [None for i in range(n)]
   for i in range(0, n):
     r[i] = p[i]
     for j in range(0, i):
-      r[i] = max(r[i], p[j] + r[i-j-1])
+      c = p[j] + r[i-j-1]
+      if r[i] < c:
+        r[i] = c
+        m = j
 
   return r[n-1]
 
 # Test 1
 p = [1, 5, 8, 9, 10, 17, 17, 20, 24, 30]
-print("Prices are", p)
-for n in range(1, 11):
-  print("Optimal solution for n =", n,  "is",
+print("\nPrices are", p)
+for n in range(1, len(p) + 1):
+  print("Optimal solution for n =", n, "is",
+        recursive(p, n), top_down(p, n), bottom_up(p, n))
+
+# Test 2
+p = [1, 1, 100, 1, 1, 1, 1, 1, 1, 1]
+print("\nPrices are", p)
+for n in range(1, len(p) + 1):
+  print("Optimal solution for n =", n, "is",
         recursive(p, n), top_down(p, n), bottom_up(p, n))
