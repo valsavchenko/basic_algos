@@ -25,20 +25,28 @@ def top_down_imp(p, n, r):
 
   return r[n-1]
 
-def bottom_up(p, n):
-  if n <= 0:
+def bottom_up(prices, total_length):
+  if total_length <= 0:
     return 0
 
-  r = [None for i in range(n)]
-  for i in range(0, n):
-    r[i] = p[i]
+  optimals = [None for i in range(total_length)]
+  dirty_cuts = [None for i in range(total_length)]
+  for i in range(0, total_length):
+    optimals[i] = prices[i]
+    dirty_cuts[i] = i
     for j in range(0, i):
-      c = p[j] + r[i-j-1]
-      if r[i] < c:
-        r[i] = c
-        m = j
+      test = prices[j] + optimals[i-j-1]
+      if optimals[i] < test:
+        optimals[i] = test
+        dirty_cuts[i] = j
+  
+  i = total_length
+  cuts = []
+  while i > 0:
+    cuts.append(dirty_cuts[i-1] + 1)
+    i = i - dirty_cuts[i-1] - 1
 
-  return r[n-1]
+  return (optimals[n-1], cuts)
 
 # Test 1
 p = [1, 5, 8, 9, 10, 17, 17, 20, 24, 30]
