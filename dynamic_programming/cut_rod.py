@@ -48,16 +48,32 @@ def bottom_up(prices, total_length):
 
   return (optimals[n-1], cuts)
 
+def max_density(prices, total_length):
+  density = [prices[i] / (i + 1) for i in range(total_length)]
+
+  best_price = 0
+  cuts = []
+  while total_length > 0:
+    actual_density = density[:total_length]
+    opt = max(actual_density)
+    i = actual_density.index(opt) 
+    total_length = total_length - i - 1
+    best_price = best_price + prices[i]
+    cuts.append(i + 1)
+
+  return (best_price, cuts)
+
 # Test 1
 p = [1, 5, 8, 9, 10, 17, 17, 20, 24, 30]
 print("\nPrices are", p)
 for n in range(1, len(p) + 1):
   print("Optimal solution for n =", n, "is",
-        recursive(p, n), top_down(p, n), bottom_up(p, n))
+        recursive(p, n), top_down(p, n), bottom_up(p, n), max_density(p, n))
+  
 
 # Test 2
 p = [1, 1, 100, 1, 1, 1, 1, 1, 1, 1]
 print("\nPrices are", p)
 for n in range(1, len(p) + 1):
   print("Optimal solution for n =", n, "is",
-        recursive(p, n), top_down(p, n), bottom_up(p, n))
+        recursive(p, n), top_down(p, n), bottom_up(p, n), max_density(p, n))
