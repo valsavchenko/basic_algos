@@ -1,3 +1,4 @@
+# A straightforward recursive approach
 def recursive(p, n):
   if n <= 0:
     return 0
@@ -8,23 +9,30 @@ def recursive(p, n):
 
   return q
 
-def top_down(p, n):
-  r = [None for i in range(n)]
-  return top_down_imp(p, n, r)
+# A top down approach
+def top_down(prices, total_length):
+  optimals = [None for i in range(total_length)]
+  dirty_cuts = [None for i in range(total_length)]
+  optima = top_down_imp(prices, total_length, optimals, dirty_cuts)
+  cuts = []
+  return (optima, cuts)
 
-def top_down_imp(p, n, r):
-  if n <= 0:
+def top_down_imp(prices, total_length, optimals, dirty_cuts):
+  if total_length <= 0:
     return 0
 
-  if r[n-1] is not None:
-    return r[n-1]
+  if optimals[total_length-1] is not None:
+    return optimals[total_length-1]
 
-  r[n-1] = p[n-1]
-  for i in range(1, n):
-    r[n-1] = max(r[n-1], p[i-1] + top_down_imp(p, n-i, r))
+  optimals[total_length-1] = prices[total_length-1]
+  for i in range(1, total_length):
+    local = prices[i-1] + top_down_imp(prices, total_length-i, optimals, dirty_cuts)
+    if optimals[total_length-1] < local:
+      optimals[total_length-1] = local
 
-  return r[n-1]
+  return optimals[total_length-1]
 
+# Bottom up approaches
 def costly_cuts(prices, cut_price, total_length):
   assert total_length <= len(prices), "Not enough prices to find an optimal solution"
   assert 0 <= cut_price, "Cut price is assumed to be positive"
@@ -51,6 +59,7 @@ def costly_cuts(prices, cut_price, total_length):
 def bottom_up(prices, total_length):
   return costly_cuts(prices, 0, total_length)
 
+# A sub-optimal greedy approach
 def max_density(prices, total_length):
   density = [prices[i] / (i + 1) for i in range(total_length)]
 
