@@ -14,7 +14,13 @@ def top_down(prices, total_length):
   optimals = [None for i in range(total_length)]
   dirty_cuts = [None for i in range(total_length)]
   optima = top_down_imp(prices, total_length, optimals, dirty_cuts)
+  
   cuts = []
+  i = total_length
+  while i > 0:
+    cuts.append(dirty_cuts[i-1])
+    i = i - dirty_cuts[i-1]
+
   return (optima, cuts)
 
 def top_down_imp(prices, total_length, optimals, dirty_cuts):
@@ -25,10 +31,12 @@ def top_down_imp(prices, total_length, optimals, dirty_cuts):
     return optimals[total_length-1]
 
   optimals[total_length-1] = prices[total_length-1]
+  dirty_cuts[total_length-1] = total_length
   for i in range(1, total_length):
     local = prices[i-1] + top_down_imp(prices, total_length-i, optimals, dirty_cuts)
     if optimals[total_length-1] < local:
       optimals[total_length-1] = local
+      dirty_cuts[total_length-1] = i
 
   return optimals[total_length-1]
 
