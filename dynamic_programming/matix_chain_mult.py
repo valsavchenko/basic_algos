@@ -1,5 +1,6 @@
 from operator import mul
 from functools import reduce
+import unittest
 
 """
 Given a chain <A1, A2, ..., An> of n matrices, where for i = 1, 2, ..., n,
@@ -30,10 +31,12 @@ def matrix_chain_mult(p):
 
   return m[ind(0, n, n-1)]   
 
-# Test 1 - motivational example
-p = (10, 100, 5, 50)
-assert(7500 == matrix_chain_mult(p))
+class Tests(unittest.TestCase):
+  def test_motivational(self):
+    self.assertEqual(matrix_chain_mult((10, 100, 5, 50)), 7500)
 
-# Test 2 - step's 3 toy example
-p = (30, 35, 15, 5, 10, 20, 25)
-assert(15125 == matrix_chain_mult(p))
+  def test_step3(self):
+    self.assertEqual(matrix_chain_mult((30, 35, 15, 5, 10, 20, 25)), 15125)
+
+if __name__ == '__main__':
+  unittest.main()
