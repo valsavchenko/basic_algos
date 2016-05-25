@@ -12,7 +12,7 @@ def matrix_chain_mult(p):
     return int(i * (2 * n - i - 3) / 2 + j - 1)
 
   n = len(p) - 1
-  nn = int(n * (n - 1) / 2)
+  nn = int(n * (n-1) / 2)
   m = [reduce(mul, p)] * nn
   s = [0] * nn
   
@@ -28,6 +28,31 @@ def matrix_chain_mult(p):
         if m_ij < m[ij]:
           m[ij] = m_ij
           s[ij] = k
+
+  queue = [(0, s[ind(0, n, n-1)]), (s[ind(0, n, n-1)]+1, n-1)]
+  o = [queue[0][1]]
+  while queue:
+    q = queue[0]
+    queue = queue[1:]
+
+    if q[0] == q[1]:
+      o[:0] = [q[0]]
+      continue
+
+    q0 = (q[0], s[ind(q[0], n, q[1])])
+    if q0[0] == q0[1]:
+      o[:0] = [q0[0]]
+    else:
+      queue[:0] = [q0]
+
+    q1 = (q0[1]+1, q[1])
+    if q1[0] == q1[1]:
+      if not o or o[0] != q0[0]:
+        o[:0] = [q1[0]]
+    else:
+      queue[:0] = [q1]
+
+  print(o)
 
   return m[ind(0, n, n-1)]   
 
