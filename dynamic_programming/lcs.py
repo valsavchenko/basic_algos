@@ -13,13 +13,45 @@ and Y = <y1, y2, ..., yn>, find a maximum length common subsequence of X and Y.
 """
 
 def lcs(X, Y):
-  pass
+  m = len(X)
+  n = len(Y)
+  c = [[0 for i in range(m+1)] for j in range(n+1)]
+  b = [[0 for i in range(m)] for j in range(n)]
+
+  WN = 0
+  N = 1
+  W = 2  
+
+  for i in range(1, m):
+    for j in range(1, n):
+
+      if X[i] == Y[j]:
+        c[i][j] = c[i-1][j-1] + 1
+        b[i-1][j-1] = WN
+      elif c[i-1][j] >= c[i][j-1]:
+        c[i][j] = c[i-1][j]
+        b[i-1][j-1] = N
+      elif c[i][j] == c[i][j-1]:
+        b[i-1][j-1] = W
+
+  i = m
+  j = n
+  seq = []
+  while m > 0 and n > 0:
+    pass
+    
+
 
 class Tests(unittest.TestCase):
-  def test_motivational(self):
+  def test_motivational_dna(self):
     self.assertEqual(lcs(list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA'),
                          list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')),
                          list('GTCGTCGGAAGCCGGCCGAA'))
+  def test_motivational_lcs_example(self):
+    self.assertEqual(lcs(list('ABCBDAB'), list('BDCABA')), list('BCBA'))
+
+  def test_indexing(self):
+    self.assertEqual(lcs(list('ABC'), list('AC')), list('AC'))
 
 if __name__ == '__main__':
   unittest.main()
