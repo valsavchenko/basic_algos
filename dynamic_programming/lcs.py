@@ -33,14 +33,20 @@ def lcs(X, Y):
       elif c[i][j] == c[i][j-1]:
         b[i-1][j-1] = W
 
+  print(c, b)
+
   i = m-1
   j = n-1
   seq = []
-  while i > 0 and j > 0:
+  while i >= 0 and j >= 0:
+    print(i, j)
     if X[i] == Y[j]:
       seq.insert(0, X[i])
-    i = i + b[i-1][j-1][0]
-    j = j + b[i-1][j-1][1]
+    ii = i
+    jj = j
+    i += b[ii][jj][0]
+    j += b[ii][jj][1]
+    assert(ii != i or jj != j)
 
   return seq
 
@@ -49,9 +55,9 @@ class Tests(unittest.TestCase):
 #    self.assertEqual(lcs(list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA'),
 #                         list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')),
 #                         list('GTCGTCGGAAGCCGGCCGAA'))
-#  def test_motivational_lcs_example(self):
-#    self.assertEqual(lcs(list('ABCBDAB'), list('BDCABA')), list('BCBA'))
-#
+  def test_motivational_lcs_example(self):
+    self.assertEqual(lcs(list('ABCBDAB'), list('BDCABA')), list('BCBA'))
+
   def test_indexing(self):
     self.assertEqual(lcs(list('ABC'), list('AC')), list('AC'))
 
