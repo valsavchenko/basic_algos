@@ -30,16 +30,14 @@ def lcs(X, Y):
       elif c[i-1][j] >= c[i][j-1]:
         c[i][j] = c[i-1][j]
         b[i-1][j-1] = N
-      elif c[i][j] == c[i][j-1]:
+      else:
+        c[i][j] = c[i][j-1]
         b[i-1][j-1] = W
-
-  print(c, b)
 
   i = m-1
   j = n-1
   seq = []
   while i >= 0 and j >= 0:
-    print(i, j)
     if X[i] == Y[j]:
       seq.insert(0, X[i])
     ii = i
@@ -51,15 +49,18 @@ def lcs(X, Y):
   return seq
 
 class Tests(unittest.TestCase):
-#  def test_motivational_dna(self):
-#    self.assertEqual(lcs(list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA'),
-#                         list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')),
-#                         list('GTCGTCGGAAGCCGGCCGAA'))
+  def test_motivational_dna(self):
+    self.assertEqual(lcs(list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA'),
+                         list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')),
+                         list('GTCGTCGGAAGCCGGCCGAA'))
   def test_motivational_lcs_example(self):
     self.assertEqual(lcs(list('ABCBDAB'), list('BDCABA')), list('BCBA'))
 
   def test_indexing(self):
     self.assertEqual(lcs(list('ABC'), list('AC')), list('AC'))
+
+  def test_15_4_1(self):
+    self.assertEqual(lcs(list('10010101'), list('010110110')), list('100110'))
 
 if __name__ == '__main__':
   unittest.main()
