@@ -31,7 +31,7 @@ def lcs(X, Y):
 
   The longest-common-subsequence problem. Given two sequences X = <x1, x2, ..., xm> 
   and Y = <y1, y2, ..., yn>, find a maximum length common subsequence of X and Y.
-    """
+  """
   m = len(X)
   n = len(Y)
   c = [[0 for j in range(n + 1)] for i in range(m + 1)]
@@ -73,6 +73,13 @@ def lcs_memoized(X, Y):
   lcs_memoized_impl(m, n)
   return construct(X, Y, c)
 
+def lcs_cheap(X, Y):
+  """
+  Computes the length of an LCS using only min(m, n) entries in the c table
+  plus O(1) additional space
+  """
+  return 0
+
 class Tests(unittest.TestCase):
   def test_motivational_dna(self):
     self.assertEqual(lcs(list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA'),
@@ -84,6 +91,11 @@ class Tests(unittest.TestCase):
                                   list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')),
                                   list('GTCGTCGGAAGCCGGCCGAA'))
 
+  def test_motivational_dna_cheap(self):
+    X = list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA')
+    Y = list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')
+    self.assertEqual(len(lcs(X, Y)), lcs_cheap(X, Y))
+
   def test_motivational_lcs_example(self):
     self.assertEqual(lcs(list('ABCBDAB'), list('BDCABA')), list('BCBA'))
 
@@ -91,11 +103,21 @@ class Tests(unittest.TestCase):
     self.assertEqual(lcs_memoized(list('ABCBDAB'), list('BDCABA')),
                      list('BCBA'))
 
+  def test_motivational_lcs_example(self):
+    X = list('ABCBDAB')
+    Y = list('BDCABA')
+    self.assertEqual(len(lcs(X, Y)), lcs_cheap(X, Y))
+  
   def test_indexing(self):
     self.assertEqual(lcs(list('ABC'), list('AC')), list('AC'))
 
   def test_indexing_memoized(self):
     self.assertEqual(lcs_memoized(list('ABC'), list('AC')), list('AC'))
+
+  def test_indexing_cheap(self):
+    X = list('ABC')
+    Y = list('AC')
+    self.assertEqual(len(lcs(X, Y)), lcs_cheap(X, Y))
 
   def test_15_4_1(self):
     self.assertEqual(lcs(list('10010101'), list('010110110')), list('100110'))
@@ -103,6 +125,11 @@ class Tests(unittest.TestCase):
   def test_15_4_1_memoized(self):
     self.assertEqual(lcs_memoized(list('10010101'), list('010110110')),
                                   list('100110'))
+
+  def test_15_4_1(self):
+    X = list('10010101')
+    Y = list('010110110')
+    self.assertEqual(len(lcs(X, Y)), lcs_cheap(X, Y))
 
 if __name__ == '__main__':
   unittest.main()
