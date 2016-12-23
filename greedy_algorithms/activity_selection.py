@@ -1,7 +1,29 @@
 import unittest
 
 def select(S):
-  return []
+  """
+  S - set of activities. I-th element of it corresponds to ai activity and
+  is represented as a pair (si, fi), where si is start time and fi is end time,
+  it is assumed that 0 <= si < fi < Inf. It's assumed that activities are sorted
+  in monotonically increasing order of finish time.
+
+  Activities ai and aj are compatible if si >= fj or sj >= fi
+
+  In the activity selection problem the goal is to select a maximum-size subset
+  of mutually compatible activitities.
+  """
+  assert all(0 <= S[i][0] and S[i][0] < S[i][1] and S[i][1] < float('Inf') for i in range(len(S)-1)),\
+   'Start times are assumed to be creater than 0 and less then finish times'
+  assert all(S[i][1] <= S[i+1][1] for i in range(len(S)-1)),\
+   'Activities are assumed to be ordered by finish time'
+  A = [0]
+  for i in range(1, len(S)):
+    currentActivity = A[-1]
+    currentFinishTime = S[currentActivity][1]
+    nextStartTime = S[i][0]
+    if currentFinishTime <= nextStartTime:
+      A.append(i)
+  return A
 
 class ActivitySelection(unittest.TestCase):
   def test_motivational(self):
