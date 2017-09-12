@@ -7,6 +7,22 @@ import unittest
 import datetime
 
 def assign_halls(activities, halls):
+  """
+  Assigns provided activities to given halls so that activities assigned on the
+  same hall do not interfere
+
+  Parameters
+  ----------
+  activities : dict(str, (datetime.time, datetime.time))
+    Name of activity and start / finish time of it
+  halls : list(str)
+    Unique ids of halls
+
+  Returns
+  -------
+  dict(str, str)
+    Distribution of halls for activities (activity -> hall)
+  """
   class Activity:
     # A node for conflicts graph
     def __init__(self):
@@ -48,11 +64,13 @@ def assign_halls(activities, halls):
   # Invest, presumably O(NlogN), into sorting to make the routine "stable"
   root = conflicts[sorted(conflicts)[0]]
   root.hall = 0
+  maxHall = len(halls)
   # Assign halls to activities
   while root:
     # Maintain an O(1) lookup vector to quickly check whether hall occupied or not 
     hlls = [False for i in halls]
-    hlls[root.hall] = True
+    if root.hasHall():
+      hlls[root.hall] = True
     # Exclude halls that could not be used due to restrictions of the problem
     for comp in root.competitors:
       # Exclude hall taken by a competitor
@@ -72,16 +90,20 @@ def assign_halls(activities, halls):
       if comp.hasHall():
         continue
       # Find next available hall
-      while hlls[hall]:
-        # FIXME: What will happen if there are too few halls?
+      while hall < maxHall and hlls[hall]:
         hall += 1
-      comp.hall = hall
-      hlls[hall] = True
+      if hall != maxHall:
+        comp.hall = hall
+        hlls[hall] = True
       # Consider last assigned activity as a new root
       rt = comp
     root = rt
 
-  return {act: conflicts[act].hall for act in conflicts}
+  assignment = {}
+  for act in conflicts:
+    hall = halls[conflicts[act].hall] if conflicts[act].hasHall() else None
+    assignment[act] = hall
+  return assignment
 
 class Tests(unittest.TestCase):
   def test_crown_graph_6(self):
@@ -91,16 +113,27 @@ class Tests(unittest.TestCase):
             'dance': (datetime.time(15), datetime.time(18)),
             'draw': (datetime.time(17), datetime.time(20)),
             'sleep': (datetime.time(19), datetime.time(10))}
-    halls = [i for i in range(len(acts))]
+    halls = ['billiard', 'city', 'concert', 'dance', 'dining', 'great']
 
-    golden = {'dance': 0,
-              'phys': 2,
-              'draw': 1,
-              'pe': 3,
-              'math': 1,
-              'sleep': 0}
+    golden = {'dance': 'billiard',
+              'phys': 'concert',
+              'draw': 'city',
+              'pe': 'dance',
+              'math': 'city',
+              'sleep': 'billiard'}
 
     self.assertEqual(assign_halls(acts, halls), golden)
 
+  def test_too_few_halls(self):
+    acts = {'math': (datetime.time(9), datetime.time(12)),
+            'draw': (datetime.time(11), datetime.time(14)),
+            'sleep': (datetime.time(13), datetime.time(10))}
+    halls = ['dining', 'dance']
+
+    golden = {'draw': 'dining',
+              'math': 'dance',
+              'sleep': None}
+
+    self.assertEqual(assign_halls(acts, halls), golden)
 if __name__ == '__main__':
   unittest.main()
