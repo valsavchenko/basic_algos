@@ -11,23 +11,14 @@ of mutually compatible activities.
 """
 
 import unittest
-
-def check_activity_selfconsistency(S):
-  concl = all(0 <= S[i][0] and S[i][0] < S[i][1] and S[i][1] < float('Inf')\
-              for i in range(len(S)-1))
-  assert concl,\
-    'Start times are assumed to be greater than 0 and less then finish times'
-
-def check_activities_ordering(S):
-  concl = all(S[i][1] <= S[i+1][1] for i in range(len(S)-1))
-  assert concl, 'Activities are assumed to be ordered by finish time'
+import activity_selection_utils as utils
 
 def min_finish_greedy_selector(S):
   """
   Implements an O(len(S)) greedy approach to the problem
   """
-  check_activity_selfconsistency(S)
-  check_activities_ordering(S)
+  utils.check_activity_selfconsistency(S)
+  utils.check_activities_ordering(S)
 
   A = [0]
   for i in range(1, len(S)):
@@ -43,8 +34,8 @@ def bottom_up_dynamic_selector(S):
   Implements an O(len(S^2)) bottom-up with memoization 
   dynamic programming approach to the problem
   """
-  check_activity_selfconsistency(S)
-  check_activities_ordering(S)
+  utils.check_activity_selfconsistency(S)
+  utils.check_activities_ordering(S)
 
   def get_index(i, j, n):
     assert i <=  j
