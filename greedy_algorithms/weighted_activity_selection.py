@@ -45,12 +45,12 @@ def _select_recursively(S, b, e):
     # Find optima for prior activities
     prior = _select_recursively(S, b, i)
     if not _areCompatible(S, prior, [i]):
-      continue
+      prior = []
 
     # Find optima for following activities
     following = _select_recursively(S, i+1, e)
     if not _areCompatible(S, [i], following):
-      continue
+      following = []
 
     # Update global optima
     candidate = prior + [i] + following
@@ -81,10 +81,16 @@ def select_recursively(S):
 
 class Tests(unittest.TestCase):
   def setUp(self):
+    self.simpliestS = [(0, 2, 1), (1, 4, 4), (3, 5, 2)]
+    self.simpliestA = [[1]]
+
     self.motivationalS = [(0, 2, 1), (1, 4, 2), (3, 6, 1), (5, 8, 2), (7, 9, 1)]
     self.motivationalA = [[1, 3]]
-  
-  def test_recursive_selector(self):
+
+  def test_select_recursively_simpliest(self):
+    self.assertIn(select_recursively(self.simpliestS), self.simpliestA)  
+
+  def test_select_recursively_motivational(self):
     self.assertIn(select_recursively(self.motivationalS), self.motivationalA)
     
 if __name__ == '__main__':
