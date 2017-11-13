@@ -79,16 +79,55 @@ def select_recursively(S):
   utils.check_activities_ordering(S)
   return _select_recursively(S, 0, len(S))
 
+def _get_splitter(splitters, b, e, n):
+  """
+  Implementation companion of select_bottom_up
+  """
+  i = (2 * n + -1 * (b - 1)) / 2 * b + e
+  return splitters[i]
+  
+def select_bottom_up(S):
+  """
+  Computes a subset of compatible activities so that their total weight is maximal
+
+  Parameters
+  ----------
+  S : list of (int, int, int)
+    A list of activities ordered by finish time: (start time, finish time, weight)
+
+  Returns
+  -------
+  list of int
+    Indexes of input activities that form an optimal solution
+  """
+  n = len(S)
+  splitters = [None] * n
+
+  for k in range(n+1):
+    for b in range(n+1-k):
+      e = b + k
+      for i in range(b, e):
+        # Pick optima for prior activities
+        # Pick optima for following activities
+        # Update local optima to reuse at upcoming steps
+        pass
+
+  # Unveil the global optima from splitters[0, n]
+  return []
+
 class Tests(unittest.TestCase):
   def setUp(self):
-    self.simpliestS = [(0, 2, 1), (1, 4, 4), (3, 5, 2)]
-    self.simpliestA = [[1]]
+    self.simplestS = [(0, 2, 1), (1, 4, 4), (3, 5, 2)]
+    self.simplestA = [[1]]
 
     self.motivationalS = [(0, 2, 1), (1, 4, 2), (3, 6, 1), (5, 8, 2), (7, 9, 1)]
     self.motivationalA = [[1, 3]]
 
-  def test_select_recursively_simpliest(self):
-    self.assertIn(select_recursively(self.simpliestS), self.simpliestA)  
+  def test_select_recursively_simplest(self):
+    self.assertIn(select_recursively(self.simplestS), self.simplestA)
+
+  def test_select_bottom_up_simplest(self):
+    self.assertIn(select_bottom_up(self.simplestS), self.simplestA)
 
   def test_select_recursively_motivational(self):
     self.assertIn(select_recursively(self.motivationalS), self.motivationalA)
