@@ -79,12 +79,26 @@ def select_recursively(S):
   utils.check_activities_ordering(S)
   return _select_recursively(S, 0, len(S))
 
-def _get_splitter(splitters, b, e, n):
+def _get_index(b, e, n):
   """
   Implementation companion of select_bottom_up
   """
-  i = (2 * n + -1 * (b - 1)) / 2 * b + e
-  return splitters[i]
+  i = int((2 * n + -1 * (b - 1)) / 2 * b) + e
+  return i
+
+def _get_subproblem_optima(As, b, e, n):
+  """
+  Implementation companion of select_bottom_up
+  """
+  i = _get_index(b, e, n)
+  return As[i]
+
+def _set_subproblem_optima(As, b, e, n, optima):
+  """
+  Implementation companion of select_bottom_up
+  """
+  i = _get_index(b, e, n)
+  As[i] = optima
   
 def select_bottom_up(S):
   """
@@ -101,19 +115,33 @@ def select_bottom_up(S):
     Indexes of input activities that form an optimal solution
   """
   n = len(S)
-  splitters = [None] * n
+  # Sacrificing memory to allow fast compatibility checks 
+  As = [[]] * int((n + 1) * (n + 2) / 2)
 
   for k in range(n+1):
     for b in range(n+1-k):
       e = b + k
+      Aweight = 0
       for i in range(b, e):
         # Pick optima for prior activities
-        # Pick optima for following activities
-        # Update local optima to reuse at upcoming steps
-        pass
+        prior = _get_subproblem_optima(As, b, i, e)
+        if not _areCompatible(S, prior, [i]):
+          prior = []
 
-  # Unveil the global optima from splitters[0, n]
-  return []
+        # Pick optima for following activities
+        following = _get_subproblem_optima(As, i+1, e, n)
+        if not _areCompatible(S, [i], following):
+          following = []
+
+        # Update local optima to reuse at upcoming steps
+        candidate = prior + [i] + following
+        candidateWeight = _getTotalWeight(S, candidate)
+        if Aweight <= candidateWeight:
+          _set_subproblem_optima(As, b, e, n, candidate)
+          Aweight = candidateWeight
+        
+  # Unveil the global optima
+  return _get_subproblem_optima(As, 0, n, n)
 
 class Tests(unittest.TestCase):
   def setUp(self):
@@ -131,6 +159,9 @@ class Tests(unittest.TestCase):
 
   def test_select_recursively_motivational(self):
     self.assertIn(select_recursively(self.motivationalS), self.motivationalA)
+
+  def test_select_bottom_up_motivational(self):
+    self.assertIn(select_bottom_up(self.motivationalS), self.motivationalA)
     
 if __name__ == '__main__':
   unittest.main()
