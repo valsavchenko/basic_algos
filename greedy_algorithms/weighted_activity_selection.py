@@ -151,6 +151,13 @@ class Tests(unittest.TestCase):
     self.motivationalS = [(0, 2, 1), (1, 4, 2), (3, 6, 1), (5, 8, 2), (7, 9, 1)]
     self.motivationalA = [[1, 3]]
 
+    self.parallelS = [(0, 2, 1), (1, 4, 4), (3, 6, 2), (1, 7, 11), (5, 8, 5), (7, 9, 3)]
+    self.parallelA = [[3, 5]]
+
+    self.equalS = [(1, 4, 1), (3, 5, 1), (0, 6, 1), (5, 7, 1), (3, 9, 1), (5, 9, 1),
+                   (6, 10, 1), (8, 11, 1), (8, 12, 1), (2, 14, 1), (12, 16, 1)]
+    self.equalA = [[0, 3, 7, 10], [1, 3, 8, 10]]
+
   def test_select_recursively_simplest(self):
     self.assertIn(select_recursively(self.simplestS), self.simplestA)
 
@@ -162,6 +169,18 @@ class Tests(unittest.TestCase):
 
   def test_select_bottom_up_motivational(self):
     self.assertIn(select_bottom_up(self.motivationalS), self.motivationalA)
+
+  def test_select_recursively_parallel(self):
+    self.assertIn(select_recursively(self.parallelS), self.parallelA)
+
+  def test_select_bottom_up_parallel(self):
+    self.assertIn(select_bottom_up(self.parallelS), self.parallelA)
+
+  def test_select_recursively_equal(self):
+    self.assertIn(select_recursively(self.equalS), self.equalA)
+
+  def test_select_bottom_up_equal(self):
+    self.assertIn(select_bottom_up(self.equalS), self.equalA)
     
 if __name__ == '__main__':
   unittest.main()
