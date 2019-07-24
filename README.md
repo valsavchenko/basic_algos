@@ -1,1 +1,1 @@
-Solutions for some basic algo puzzles
+An assorted set of solutions for basic algorithimic puzzles 
