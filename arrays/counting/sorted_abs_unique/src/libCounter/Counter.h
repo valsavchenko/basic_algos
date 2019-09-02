@@ -10,7 +10,7 @@ using Count = unsigned long long;
 using Integer = long long;
 using NonDecreasingIntegers = std::vector<Integer>;
 
-Count count_unique_modulo_values(const NonDecreasingIntegers& values) noexcept;
+Count count_unique_abs_values(const NonDecreasingIntegers& values) noexcept;
 
 }
 

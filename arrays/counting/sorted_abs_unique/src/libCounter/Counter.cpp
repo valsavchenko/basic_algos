@@ -3,7 +3,7 @@
 namespace counter
 {
 
-Count count_unique_modulo_values(const NonDecreasingIntegers& values) noexcept
+Count count_unique_abs_values(const NonDecreasingIntegers& values) noexcept
 {
     return Count{};    
 }
