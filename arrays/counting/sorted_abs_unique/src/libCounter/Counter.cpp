@@ -1,5 +1,4 @@
-#ifndef COUNTER_H
-#define COUNTER_H
+#include "Counter.h"
 
 #include <cassert>
 #include <algorithm>
@@ -57,5 +56,3 @@ Count count_unique_absolute_values(const NonDecreasingIntegers& values) noexcept
 }
 
 }
-
-#endif // COUNTER_H
