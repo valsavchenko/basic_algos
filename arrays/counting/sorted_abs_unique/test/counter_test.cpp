@@ -2,6 +2,8 @@
 
 #include "Counter.h"
 
+#include <limits>
+
 using namespace counter;
 
 TEST(Sample, Case1)
@@ -77,6 +79,13 @@ TEST(Homogeneous, TotallyDuplicatePositives)
     EXPECT_EQ(1, count);
 }
 
+TEST(Homogeneous, HugePositives)
+{
+    const Integer huge{ std::numeric_limits<Integer>::max() };
+    const auto count = count_unique_absolute_values({ huge - 7, huge - 5, huge - 3, huge - 2, huge - 1 });
+    EXPECT_EQ(5, count);
+}
+
 TEST(Homogeneous, UniqueNegatives)
 {
     const NonDecreasingIntegers values{ -62, -13, -8 };
@@ -106,6 +115,13 @@ TEST(Homogeneous, TotallyDuplicateNegatives)
 {
     const auto count = count_unique_absolute_values({ -13, -13 });
     EXPECT_EQ(1, count);
+}
+
+TEST(Homogeneous, HugeNegatives)
+{
+    const Integer huge{ std::numeric_limits<Integer>::min() };
+    const auto count = count_unique_absolute_values({ huge + 1, huge + 2, huge + 3, huge + 5, huge + 7, huge + 11 });
+    EXPECT_EQ(6, count);
 }
 
 TEST(Assorted, DuplicateHalves)
