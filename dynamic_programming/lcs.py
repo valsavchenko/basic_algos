@@ -1,135 +1,147 @@
+"""
+Given a sequence X = <x1, x2, ..., xm>, another sequence Z = <z1, z2, ..., zk> is a subsequence of X if there exists
+a strictly increasing sequence <i1, i2, ..., ik> of indices of X such that for all j = 1, 2, ..., k,
+holds Xi_j = Zj.
+For example, Z = <B, C, D, B> is a subsequence of X = <A, B, C, B, D, A, B> with corresponding index sequence
+<2, 3, 5, 7>.
+
+Given two sequences X and Y, a sequence Z is a common subsequence of X and Y if Z is a subsequence of both X and Y.
+For example, if X = <A, B, C, B, D, A, B> and Y = <B, D, C, A, B, A>, the sequence <B, C, A> is a common subsequence
+of both X and Y.
+
+The longest-common-subsequence problem. Given two sequences X = <x1, x2, ..., xm> and Y = <y1, y2, ..., yn>, find
+a maximum length common subsequence of X and Y.
+For example, if X = <A, B, C, B, D, A, B> and Y = <B, D, C, A, B, A>, both sequences <B, C, B, A> and <B, D, A, B>
+are LCS of X and Y? since X and Y have no common subsequence of length 5 or greater.
+"""
+
 import unittest
 
-def construct(X, Y, c):
-  i = len(X)
-  assert(i == len(c) - 1)
-  j = len(Y)
-  assert(j == len(c[0]) - 1)
 
-  seq = []
-  while i > 0 and j > 0:
-    if X[i - 1] == Y[j - 1]:
-      seq.insert(0, X[i - 1])
-      i = i - 1
-      j = j - 1
-    elif c[i][j] == c[i - 1][j]:
-      i = i - 1
-    else:
-      j = j - 1
-  assert(c[len(X)][len(Y)] == len(seq))
+def unwind_lcs(sequence_x, sequence_y, lcs_ij):
+    i = len(sequence_x)
+    assert (i == len(lcs_ij) - 1)
+    j = len(sequence_y)
+    assert (j == len(lcs_ij[0]) - 1)
 
-  return seq
+    lcs = []
+    while 0 < i and 0 < j:
+        # If the last elements of the Xi and the Yj prefixes match, add it at the beginning of the LCS
+        # Otherwise keep shortening appropriate prefixes to move on to the next element of the LCS
+        if sequence_x[i - 1] == sequence_y[j - 1]:
+            lcs.insert(0, sequence_x[i - 1])
+            i = i - 1
+            j = j - 1
+        elif lcs_ij[i][j] == lcs_ij[i - 1][j]:
+            i = i - 1
+        else:
+            assert lcs_ij[i][j] == lcs_ij[i][j - 1]
+            j = j - 1
+    assert lcs_ij[len(sequence_x)][len(sequence_y)] == len(lcs)
 
-def lcs(X, Y):
-  """
-  Given a sequence X = <x1, x2, ..., xm>, another sequence Z = <z1, z2, ..., zk> is 
-  a subsequence of X if there exists a strictly increasing sequence <i1, i2, ..., ik> 
-  of indices of X such that for all j = 1, 2, ..., k, holds xij = zj.
+    return lcs
 
-  Given two sequences X and Y, a sequence Z is a common subsequence of X and Y if Z is 
-  a subsequence of both X and Y . 
 
-  The longest-common-subsequence problem. Given two sequences X = <x1, x2, ..., xm> 
-  and Y = <y1, y2, ..., yn>, find a maximum length common subsequence of X and Y.
-  """
-  m = len(X)
-  n = len(Y)
-  c = [[0 for j in range(n + 1)] for i in range(m + 1)]
+def find_lcs(sequence_x, sequence_y):
+    # Prepare a matrix to express an LCS of the first i elements of X sequence and the first j elements of Y sequence
+    # through the prefix sequences of X/Y of smaller sizes
+    m = len(sequence_x)
+    n = len(sequence_y)
+    lcs_ij = [[0 for j in range(n + 1)] for i in range(m + 1)]
 
-  for i in range(1, m + 1):
-    for j in range(1, n + 1):
-      if X[i - 1] == Y[j - 1]:
-        c[i][j] = c[i - 1][j - 1] + 1
-      elif c[i - 1][j] >= c[i][j - 1]:
-        c[i][j] = c[i - 1][j]
-      else:
-        c[i][j] = c[i][j - 1]
+    # Fill the matrix in a bottom up fashion: the X1 prefix against the Y1, Y2, ..., Yn prefixes, then the X2 prefix
+    # against all the prefix sequences of Y, etc. until the Xm prefix is examined
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if sequence_x[i - 1] == sequence_y[j - 1]:
+                # If both the Xi prefix and the Yj prefix have the same element at their tails, then the Xi-1 prefix and
+                # the Yj-1 prefix must shared the very same LCS
+                lcs_ij[i][j] = lcs_ij[i - 1][j - 1] + 1
+            elif lcs_ij[i][j - 1] <= lcs_ij[i - 1][j]:
+                # If tails of the Xi prefix and the Yj prefix mismatch and their LCS does not contain the tail of X,
+                # then their LCS must match an LCS of the Xi-1 and the Yj
+                lcs_ij[i][j] = lcs_ij[i - 1][j]
+            else:
+                # Complimentary to the previous case, an LCS must match an LCS of the Xi and the Yj-1
+                assert lcs_ij[i - 1][j] < lcs_ij[i][j - 1]
+                lcs_ij[i][j] = lcs_ij[i][j - 1]
 
-  return construct(X, Y, c)
+    # Reconstruct an LCS for the initial sequences
+    return unwind_lcs(sequence_x, sequence_y, lcs_ij)
 
-def lcs_memoized(X, Y):
-  """
-  An O(m*n) memoized approach to the LCS problem
-  """
-  m = len(X)
-  n = len(Y)
-  ui = -1
-  c = [[ui for j in range(n + 1)] for i in range(m + 1)]
 
-  def lcs_memoized_impl(i, j):
-    if i == 0 or j == 0:
-      return 0
+def find_lcs_recursively(sequence_x, sequence_y):
+    # Use the same observation as for find_lcs, but this time compute LCSes of prefixes recursively with memoization
 
-    if c[i][j] != ui:
-      return c[i][j]
+    # Prepare a matrix for LCSes of prefixes
+    m = len(sequence_x)
+    n = len(sequence_y)
+    unknown_lcs_length = -1
+    lcs_ij = [[unknown_lcs_length for j in range(n + 1)] for i in range(m + 1)]
 
-    if X[i - 1] == Y[j - 1]:
-      c[i][j] = lcs_memoized_impl(i - 1, j - 1) + 1
-    else:
-      c[i][j] = max(lcs_memoized_impl(i, j - 1),
-                    lcs_memoized_impl(i - 1, j))
-    return c[i][j]
+    # Compute an LCS of a Xi prefix and a Yj prefix
+    def find_lcs_recursively_impl(i, j):
+        # Wrap up if either prefix has a zero length
+        if i == 0 or j == 0:
+            return 0
 
-  lcs_memoized_impl(m, n)
-  return construct(X, Y, c)
+        # Wrap up if an LCS for the prefixes is already known
+        if lcs_ij[i][j] != unknown_lcs_length:
+            return lcs_ij[i][j]
 
-def lcs_cheap(X, Y):
-  """
-  Computes the length of an LCS using only min(m, n) entries in the c table
-  plus O(1) additional space
-  """
-  return 0
+        # Dive one recursion level below to compose an LCS for the Xi prefix and the Yj prefix from the smaller prefixes
+        if sequence_x[i - 1] == sequence_y[j - 1]:
+            lcs_ij[i][j] = find_lcs_recursively_impl(i - 1, j - 1) + 1
+        else:
+            lcs_ij[i][j] = max(find_lcs_recursively_impl(i, j - 1),
+                               find_lcs_recursively_impl(i - 1, j))
+
+        # Supply an LCS of the prefixes
+        return lcs_ij[i][j]
+
+    find_lcs_recursively_impl(m, n)
+
+    # Reconstruct an LCS for the initial sequences
+    return unwind_lcs(sequence_x, sequence_y, lcs_ij)
+
 
 class Tests(unittest.TestCase):
-  def test_motivational_dna(self):
-    self.assertEqual(lcs(list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA'),
-                         list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')),
-                         list('GTCGTCGGAAGCCGGCCGAA'))
+    def test_motivational_dna(self):
+        x = list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA')
+        y = list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')
+        expected_lcs = list('GTCGTCGGAAGCCGGCCGAA')
 
-  def test_motivational_dna_memoized(self):
-    self.assertEqual(lcs_memoized(list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA'),
-                                  list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')),
-                                  list('GTCGTCGGAAGCCGGCCGAA'))
+        lcs = find_lcs(x, y)
+        lcs_recursively = find_lcs_recursively(x, y)
+        self.assertTrue(lcs == lcs_recursively == expected_lcs)
 
-  def test_motivational_dna_cheap(self):
-    X = list('ACCGGTCGAGTGCGCGGAAGCCGGCCGAA')
-    Y = list('GTCGTTCGGAATGCCGTTGCTCTGTAAA')
-    self.assertEqual(len(lcs(X, Y)), lcs_cheap(X, Y))
+    def test_motivational_lcs_example(self):
+        x = list('ABCBDAB')
+        y = list('BDCABA')
+        expected_lcs = list('BCBA')
 
-  def test_motivational_lcs_example(self):
-    self.assertEqual(lcs(list('ABCBDAB'), list('BDCABA')), list('BCBA'))
+        lcs = find_lcs(x, y)
+        lcs_recursively = find_lcs_recursively(x, y)
+        self.assertTrue(lcs == lcs_recursively == expected_lcs)
 
-  def test_motivational_lcs_example_memoized(self):
-    self.assertEqual(lcs_memoized(list('ABCBDAB'), list('BDCABA')),
-                     list('BCBA'))
+    def test_indexing(self):
+        x = list('ABC')
+        y = list('AC')
+        expected_lcs = list('AC')
 
-  def test_motivational_lcs_example(self):
-    X = list('ABCBDAB')
-    Y = list('BDCABA')
-    self.assertEqual(len(lcs(X, Y)), lcs_cheap(X, Y))
-  
-  def test_indexing(self):
-    self.assertEqual(lcs(list('ABC'), list('AC')), list('AC'))
+        lcs = find_lcs(x, y)
+        lcs_recursively = find_lcs_recursively(x, y)
+        self.assertTrue(lcs == lcs_recursively == expected_lcs)
 
-  def test_indexing_memoized(self):
-    self.assertEqual(lcs_memoized(list('ABC'), list('AC')), list('AC'))
+    def test_15_4_1(self):
+        x = list('10010101')
+        y = list('010110110')
+        expected_lcs = list('100110')
 
-  def test_indexing_cheap(self):
-    X = list('ABC')
-    Y = list('AC')
-    self.assertEqual(len(lcs(X, Y)), lcs_cheap(X, Y))
+        lcs = find_lcs(x, y)
+        lcs_recursively = find_lcs_recursively(x, y)
+        self.assertTrue(lcs == lcs_recursively == expected_lcs)
 
-  def test_15_4_1(self):
-    self.assertEqual(lcs(list('10010101'), list('010110110')), list('100110'))
-
-  def test_15_4_1_memoized(self):
-    self.assertEqual(lcs_memoized(list('10010101'), list('010110110')),
-                                  list('100110'))
-
-  def test_15_4_1(self):
-    X = list('10010101')
-    Y = list('010110110')
-    self.assertEqual(len(lcs(X, Y)), lcs_cheap(X, Y))
 
 if __name__ == '__main__':
-  unittest.main()
+    unittest.main()
